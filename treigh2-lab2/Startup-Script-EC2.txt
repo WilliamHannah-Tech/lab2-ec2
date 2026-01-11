@@ -1,0 +1,58 @@
+#!/bin/bash
+dnf -y update || yum -y update
+dnf -y install httpd || yum -y install httpd
+systemctl enable httpd
+systemctl start httpd
+
+cat > /var/www/html/index.html <<'EOF'
+<!doctype html>
+<html lang="en" class="h-100">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Details for EC2 instance</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: green;
+      color: white;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 24px;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin: 12px 0 18px;
+      border: 4px solid rgba(255,255,255,0.7);
+    }
+
+    p { line-height: 1.4; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Treigh</h1>
+    <h2>Single A - Lab 2</h2>
+
+    <img
+      src="https://www.exceptionalvillas.com/public/upload/listing_photos_resize/w1900xh1900-the-beach-house-anguilla-exceptional-villas-325-.jpg"
+      alt="Cloud Travels"
+    />
+
+    <p><b>About Me:</b> Cloud Engineering Globally.</p>
+    <p><b>Project Description:</b> EC2 startup script, View the world from the clouds</p>
+    <p><b>Availability Zone:</b> eu-west-2</p>
+    <p><b>Email:</b> Treigh-Tech@gmail.com</p>
+  </div>
+</body>
+</html>
+EOF
