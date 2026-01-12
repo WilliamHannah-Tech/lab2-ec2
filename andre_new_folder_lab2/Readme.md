@@ -1,0 +1,1 @@
+The attached script is to generate a basic EC2 instance that shows pertinent information about my region and demonstrates my ability to edit minor adjustments to the embeded image.
