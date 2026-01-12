@@ -1,0 +1,58 @@
+#!/bin/bash
+# install httpd (Linux 2 version)
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+
+# Get the IMDSv2 token
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+# Background the curl requests
+curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4 &> /tmp/local_ipv4 &
+curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone &> /tmp/az &
+curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/ &> /tmp/macid &
+wait
+
+macid=$(cat /tmp/macid)
+local_ipv4=$(cat /tmp/local_ipv4)
+az=$(cat /tmp/az)
+vpc=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/${macid}/vpc-id)
+
+# Using EOF makes writing HTML much easier and prevents quote errors
+cat <<EOF > /var/www/html/index.html
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Lab 2 EC2 instance</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .highlight { color: #5865F2; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Greetings! I'm Mr. Cooper, a budding cloud engineer on the path to riches!</h1>
+        <h1>Thanks to the tutelage of Ross (The Sauce Boss) & Wisdom of (Sage Uhuru)</h1>
+        <h1>I'll be arriving to the 2030 Conclave in this Beauty</h1>
+
+        <p><i>This is a simple EC2 script designed to inspire & showcase my skillset of front end HTML design</i></p>
+        
+        <img src="https://www.cnet.com/a/img/resize/7af78c7900c658f52b6b50c83e7a5a98caccf62a/hub/2019/07/10/b4fd0aae-2c8a-475a-bcf6-a4c3b355c54a/bentley-exp-100-gt-26.jpg?auto=webp&width=1200" alt="Bentley" width="600">
+        
+        <br><br>
+        <p><b>Link to my repo:</b> <a href="https://github.com/Cooperx33/armageddon_sa.git">GitHub Repo</a></p>
+        <p><b>Link to group Repo:</b> <a href="https://github.com/WilliamHannah-Tech/lab1-pullrequest.git">Group Repo</a></p>
+        <p><b>Availability Zone:</b> $az</p>
+        <p><b>Private IP:</b> $local_ipv4</p>
+        <p><b>VPC ID:</b> $vpc</p>
+        <p><b>Any Accolades can be sent to my FB messenger!</b></p>
+    </div>
+</body>
+</html>
+EOF
+
+# Clean up the temp files
+rm -f /tmp/local_ipv4 /tmp/az /tmp/macid
+
+# Hand Wash Only
